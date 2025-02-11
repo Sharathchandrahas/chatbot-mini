@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="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")
 
 
 @csrf_exempt
