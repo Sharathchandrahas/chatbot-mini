@@ -3,7 +3,7 @@ import axios from "axios";
 
 const Chat = () => {
   const [message, setMessage] = useState("");
-  const [response, setResponse] = useState("");
+  const [conversation, setConversation] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
@@ -13,16 +13,24 @@ const Chat = () => {
   const handleSendMessage = async () => {
     if (!message) return;
     setLoading(true);
-    setResponse("");
+
+    const updatedConversation = [
+      ...conversation,
+      { role: "user", content: message },
+    ];
 
     try {
       const res = await axios.post("http://localhost:8000/api/chat/", {
         message: message,
+        conversation: updatedConversation,
       });
-      setResponse(res.data.response);
+
+      setConversation([
+        ...updatedConversation,
+        { role: "assistant", content: res.data.response },
+      ]);
     } catch (error) {
       console.error("Error sending message:", error);
-      setResponse("Sorry, there was an error. Please try again.");
     }
 
     setLoading(false);
@@ -31,25 +39,31 @@ const Chat = () => {
 
   return (
     <div className="chat-container">
-      <h2>Do you have any queries?</h2>
-      <input
-        type="text"
-        value={message}
-        onChange={handleInputChange}
-        placeholder="Type your query here..."
-      />
-      <button onClick={handleSendMessage} disabled={loading}>
-        {loading ? "Sending..." : "Submit"}
-      </button>
-
-      {loading && <p>Waiting for response...</p>}
-
-      {!loading && response && (
-        <div className="response">
-          <h3>Response:</h3>
-          <p>{response}</p>
-        </div>
-      )}
+      <h2>Chat with AI</h2>
+      <div className="chat-box">
+        {conversation.map((msg, index) => (
+          <div
+            key={index}
+            className={`message ${
+              msg.role === "user" ? "user-message" : "ai-message"
+            }`}
+          >
+            <strong>{msg.role === "user" ? "You: " : "AI: "}</strong>
+            {msg.content}
+          </div>
+        ))}
+      </div>
+      <div className="input-container">
+        <input
+          type="text"
+          value={message}
+          onChange={handleInputChange}
+          placeholder="Type your message..."
+        />
+        <button onClick={handleSendMessage} disabled={loading}>
+          {loading ? "..." : "Send"}
+        </button>
+      </div>
     </div>
   );
 };
