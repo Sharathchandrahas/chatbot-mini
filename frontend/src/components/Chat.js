@@ -39,7 +39,7 @@ const Chat = () => {
 
   return (
     <div className="chat-container">
-      <h2>Chat with AI</h2>
+      <p>Sharath's ChatGPT</p>
       <div className="chat-box">
         {conversation.map((msg, index) => (
           <div
@@ -48,7 +48,6 @@ const Chat = () => {
               msg.role === "user" ? "user-message" : "ai-message"
             }`}
           >
-            <strong>{msg.role === "user" ? "You: " : "AI: "}</strong>
             {msg.content}
           </div>
         ))}
