@@ -10,7 +10,7 @@ load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(
-  api_key=OPENAI_API_KEY,  # this is also the default, it can be omitted
+  api_key=OPENAI_API_KEY, 
 )
 
 @csrf_exempt
