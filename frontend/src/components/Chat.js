@@ -5,36 +5,40 @@ const Chat = () => {
   const [message, setMessage] = useState("");
   const [conversation, setConversation] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState(null);
 
   const handleInputChange = (e) => {
     setMessage(e.target.value);
   };
 
-  const handleSendMessage = async () => {
-    if (!message) return;
-    setLoading(true);
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
 
-    const updatedConversation = [
-      ...conversation,
-      { role: "user", content: message },
-    ];
+  const handleSendMessage = async () => {
+    if (!message && !file) return;
+    setLoading(true);
+    const formData = new FormData();
+    if (message) formData.append("message", message);
+    if (file) formData.append("file", file);
+    formData.append("conversation", JSON.stringify(conversation));
 
     try {
-      const res = await axios.post("http://localhost:8000/api/chat/", {
-        message: message,
-        conversation: updatedConversation,
-      });
-
-      setConversation([
-        ...updatedConversation,
-        { role: "assistant", content: res.data.response },
-      ]);
+      const res = await axios.post(
+        "http://localhost:8000/api/chat/",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      setConversation(res.data.conversation);
     } catch (error) {
       console.error("Error sending message:", error);
     }
 
     setLoading(false);
     setMessage("");
+    setFile(null);
   };
 
   return (
@@ -58,6 +62,11 @@ const Chat = () => {
           value={message}
           onChange={handleInputChange}
           placeholder="Type your message..."
+        />
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={handleFileChange}
         />
         <button onClick={handleSendMessage} disabled={loading}>
           {loading ? "..." : "Send"}
